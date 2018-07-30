@@ -1,0 +1,41 @@
+{
+  "name": "seneca",
+  "version": "1.0.0",
+  "description": "\"The heart is great which shows moderation in the midst of prosperity.\"",
+  "main": "./dist/server/main.js",
+  "author": "davalapar",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-airbnb": "^2.5.3",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "scripts": {
+    "dev": "webpack --progress --mode=development --watch",
+    "prod": "webpack --progress --mode=production --watch",
+    "final": "webpack --progress --mode=production"
+  },
+  "dependencies": {
+    "@material-ui/core": "^1.4.2",
+    "@material-ui/icons": "^2.0.0",
+    "compression": "^1.7.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-force-ssl": "^0.3.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  }
+}

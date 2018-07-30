@@ -1,0 +1,18 @@
+{
+  "presets": [
+      [
+        "airbnb",
+        {
+          "targets": {
+            "chrome": 50,
+            "firefox": 45
+          }
+        }
+      ],
+      "react"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "syntax-dynamic-import"
+  ]
+}
