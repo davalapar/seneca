@@ -1,5 +1,16 @@
 ## seneca
 
+* commands:
+
+```
+yarn run dev
+yarn run prod
+yarn run final
+nodemon
+```
+
+* `yarn installs`
+
 ```
 // Client:
 yarn add webpack webpack-cli uglifyjs-webpack-plugin -D
