@@ -35,8 +35,12 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "express-force-ssl": "^0.3.2",
+    "fast-sha256": "^1.1.0",
+    "pako": "^1.0.6",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "sweetalert2": "^7.26.9"
+    "sweetalert2": "^7.26.9",
+    "tweetnacl": "^1.0.0",
+    "tweetnacl-util": "^0.15.0"
   }
 }
