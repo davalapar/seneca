@@ -18,13 +18,13 @@ const App = () => (
         multiple
         type="file"
       />
-      <Button variant="contained" component="span">
+      <Button variant="outlined" size="small" component="span">
         Add Files
       </Button>
     </label>
     <hr />
-    <Button variant="contained" color="primary" onClick={() => swal('Clicked!')}>
-      Hello World
+    <Button variant="contained" size="small" color="primary" onClick={() => swal('Clicked!')}>
+      Start
     </Button>
   </div>
 );
