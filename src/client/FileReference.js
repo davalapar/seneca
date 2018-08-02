@@ -1,7 +1,7 @@
 /* eslint-disable no-alert, no-console, no-undef, arrow-parens */
 
 import prettybytes from 'pretty-bytes';
-import utils from './utils';
+import { sha256, pako, ab2hex, msgpack } from './utils';
 
 /**
  * Cheatsheet:
@@ -15,60 +15,36 @@ class FileReference {
     this.file = file;
   }
 
-  raw() {
-    const { file } = this;
+  fromFile(file) {
     const self = this;
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const { result } = e.target;
         const uint8array = new Uint8Array(result);
-        self.bufferRaw = uint8array;
         self.sizeRaw = uint8array.byteLength;
         self.sizeRawPretty = prettybytes(uint8array.byteLength);
-        self.hashRaw = utils.ab2hex(utils.sha256(uint8array));
-        resolve(uint8array);
+        self.hashRaw = ab2hex(sha256(uint8array));
+        const compressed = pako.deflate(uint8array, { level: 9, memLevel: 9 });
+        self.bufferCompressed = compressed;
+        self.sizeCompressed = compressed.byteLength;
+        self.sizeCompressedPretty = prettybytes(compressed.byteLength);
+        self.hashCompressed = ab2hex(sha256(compressed));
+        resolve();
       };
       reader.onerror = reject;
       reader.readAsArrayBuffer(file);
     });
   }
 
-  compressed() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      const compress = (x) => utils.pako.deflate(x, { level: 9, memLevel: 9 });
-      if (Boolean(self.bufferRaw) === true) {
-        const compressed = compress(self.bufferRaw);
-        self.bufferCompressed = compressed;
-        self.sizeCompressed = compressed.byteLength;
-        self.sizeCompressedPretty = prettybytes(compressed.byteLength);
-        self.hashCompressed = utils.ab2hex(utils.sha256(compressed));
-        resolve(compressed);
-      } else {
-        self.raw()
-          .then((result) => {
-            const compressed = compress(result);
-            self.bufferCompressed = compressed;
-            resolve(compressed);
-          })
-          .catch(reject);
-      }
-    });
-  }
-
+  /**
+   * Splits by chunkSize
+   */
   chunk() {
     const { sizeCompressed, bufferCompressed } = this;
-    /**
-     * Splits by chunkSize
-     */
-    let chunkSize;
-    for (let i = 1; i <= 10; i += 1) {
-      const kilobytes = (2 ** i) * 1024;
-      if (kilobytes < sizeCompressed / 8) {
-        chunkSize = kilobytes;
-      }
-    }
+
+    // lock at 16kb chunks to fit well with WebRTC frame size limit
+    const chunkSize = 16 * 1024;
     const chunkCount = Math.ceil(sizeCompressed / chunkSize);
     const chunkIndex = [];
     for (let i = 0; i < chunkCount; i += 1) {
@@ -80,12 +56,16 @@ class FileReference {
         end,
         size: chunk.byteLength,
         pretty: prettybytes(chunk.byteLength),
-        hash: utils.ab2hex(utils.sha256(chunk)),
+        hash: ab2hex(sha256(chunk)),
       });
     }
+    const chunkIndexBufferHash = ab2hex(sha256(msgpack.encode(chunkIndex)));
+
+    this.chunkCount = chunkCount;
     this.chunkIndex = chunkIndex;
     this.chunkSize = chunkSize;
     this.chunkSizePretty = prettybytes(chunkSize);
+    this.chunkIndexBufferHash = chunkIndexBufferHash;
   }
 }
 

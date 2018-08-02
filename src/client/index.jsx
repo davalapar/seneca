@@ -7,7 +7,8 @@ import mitt from 'mitt';
 import createStore from 'unistore';
 import { Map, List } from 'immutable';
 import FileReference from './FileReference';
-import utils from './utils';
+
+import { swal } from './utils';
 
 const Store = createStore();
 const Events = mitt();
@@ -28,11 +29,9 @@ const App = () => (
           const { files } = e.target;
           Array.from(files).forEach((file) => {
             const tempFileRef = new FileReference(file);
-            tempFileRef.raw()
-              .then(() => tempFileRef.compressed())
+            tempFileRef.fromFile(file)
               .then(() => tempFileRef.chunk())
               .then(() => console.log(tempFileRef));
-            console.log(tempFileRef);
             let State = Store.getState();
             let FileReferences = State.get('FileReferences');
             FileReferences = FileReferences.push(tempFileRef);
@@ -46,9 +45,13 @@ const App = () => (
       </Button>
     </label>
     <hr />
-    <Button variant="contained" size="small" color="primary" onClick={() => {
-      utils.swal('Clicked!');
-    }}>
+    <Button
+      variant="contained"
+      size="small"
+      color="primary"
+      onClick={() => {
+        swal('Clicked!');
+      }}>
       Start
     </Button>
   </div>
@@ -56,6 +59,5 @@ const App = () => (
 
 ReactDOM.render(<App />, document.querySelector('#app'));
 
-window.utils = utils;
 window.Store = Store;
 window.Events = Events;
