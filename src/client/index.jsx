@@ -46,7 +46,9 @@ const App = () => (
       </Button>
     </label>
     <hr />
-    <Button variant="contained" size="small" color="primary" onClick={() => utils.swal('Clicked!')}>
+    <Button variant="contained" size="small" color="primary" onClick={() => {
+      utils.swal('Clicked!');
+    }}>
       Start
     </Button>
   </div>
