@@ -5,7 +5,9 @@ import utils from 'tweetnacl-util';
 import sha256 from 'fast-sha256';
 import pako from 'pako';
 import swal from 'sweetalert2';
+import msgpack5 from 'msgpack5';
 
+utils.msgpack = msgpack5();
 utils.nacl = nacl;
 utils.sha256 = sha256;
 utils.pako = pako;

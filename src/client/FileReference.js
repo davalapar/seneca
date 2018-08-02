@@ -10,6 +10,7 @@ import utils from './utils';
  */
 
 class FileReference {
+
   constructor(file) {
     this.file = file;
   }
@@ -22,9 +23,10 @@ class FileReference {
       reader.onload = (e) => {
         const { result } = e.target;
         const uint8array = new Uint8Array(result);
-        self.buffer_raw = uint8array;
-        self.size_raw = prettybytes(uint8array.byteLength);
-        self.hash_raw = utils.ab2hex(utils.sha256(uint8array));
+        self.bufferRaw = uint8array;
+        self.sizeRaw = uint8array.byteLength;
+        self.sizeRawPretty = prettybytes(uint8array.byteLength);
+        self.hashRaw = utils.ab2hex(utils.sha256(uint8array));
         resolve(uint8array);
       };
       reader.onerror = reject;
@@ -36,17 +38,18 @@ class FileReference {
     const self = this;
     return new Promise((resolve, reject) => {
       const compress = (x) => utils.pako.deflate(x, { level: 9, memLevel: 9 });
-      if (Boolean(self.buffer_raw) === true) {
-        const compressed = compress(self.buffer_raw);
-        self.buffer_compressed = compressed;
-        self.size_compressed = prettybytes(compressed.byteLength);
-        self.hash_compressed = utils.ab2hex(utils.sha256(compressed));
+      if (Boolean(self.bufferRaw) === true) {
+        const compressed = compress(self.bufferRaw);
+        self.bufferCompressed = compressed;
+        self.sizeCompressed = compressed.byteLength;
+        self.sizeCompressedPretty = prettybytes(compressed.byteLength);
+        self.hashCompressed = utils.ab2hex(utils.sha256(compressed));
         resolve(compressed);
       } else {
         self.raw()
           .then((result) => {
             const compressed = compress(result);
-            self.buffer_compressed = compressed;
+            self.bufferCompressed = compressed;
             resolve(compressed);
           })
           .catch(reject);
@@ -55,18 +58,34 @@ class FileReference {
   }
 
   chunk() {
-    const self = this;
+    const { sizeCompressed, bufferCompressed } = this;
     /**
      * Splits by chunkSize
      */
-    const chunkSize = 16 * 1024;
-    const chunkCount = Math.ceil(self.buffer_compressed.byteLength / chunkSize)
-    console.log(chunkCount);
-    for (let i = 0; i < chunkCount; i += 1) {
-      const chunk = self.buffer_compressed.slice(i * chunkSize, (i * chunkSize) + chunkSize);
-      const chunkHash = utils.ab2hex(utils.sha256(chunk));
-      console.log(String(i), prettybytes(chunk.byteLength), chunkHash);
+    let chunkSize;
+    for (let i = 1; i <= 10; i += 1) {
+      const kilobytes = (2 ** i) * 1024;
+      if (kilobytes < sizeCompressed / 8) {
+        chunkSize = kilobytes;
+      }
     }
+    const chunkCount = Math.ceil(sizeCompressed / chunkSize);
+    const chunkIndex = [];
+    for (let i = 0; i < chunkCount; i += 1) {
+      const begin = i * chunkSize;
+      const end = (i * chunkSize) + chunkSize;
+      const chunk = bufferCompressed.slice(begin, end);
+      chunkIndex.push({
+        begin,
+        end,
+        size: chunk.byteLength,
+        pretty: prettybytes(chunk.byteLength),
+        hash: utils.ab2hex(utils.sha256(chunk)),
+      });
+    }
+    this.chunkIndex = chunkIndex;
+    this.chunkSize = chunkSize;
+    this.chunkSizePretty = prettybytes(chunkSize);
   }
 }
 

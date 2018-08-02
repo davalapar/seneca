@@ -29,9 +29,7 @@ const App = () => (
           Array.from(files).forEach((file) => {
             const tempFileRef = new FileReference(file);
             tempFileRef.raw()
-              .then(console.log)
               .then(() => tempFileRef.compressed())
-              .then(console.log)
               .then(() => tempFileRef.chunk())
               .then(() => console.log(tempFileRef));
             console.log(tempFileRef);
