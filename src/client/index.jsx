@@ -28,8 +28,12 @@ const App = () => (
           const { files } = e.target;
           Array.from(files).forEach((file) => {
             const tempFileRef = new FileReference(file);
-            tempFileRef.raw().then(console.log);
-            tempFileRef.compressed().then(console.log);
+            tempFileRef.raw()
+              .then(console.log)
+              .then(() => tempFileRef.compressed())
+              .then(console.log)
+              .then(() => tempFileRef.chunk())
+              .then(() => console.log(tempFileRef));
             console.log(tempFileRef);
             let State = Store.getState();
             let FileReferences = State.get('FileReferences');
@@ -44,7 +48,7 @@ const App = () => (
       </Button>
     </label>
     <hr />
-    <Button variant="contained" size="small" color="primary" onClick={() => swal('Clicked!')}>
+    <Button variant="contained" size="small" color="primary" onClick={() => utils.swal('Clicked!')}>
       Start
     </Button>
   </div>

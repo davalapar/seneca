@@ -10,7 +10,11 @@ utils.nacl = nacl;
 utils.sha256 = sha256;
 utils.pako = pako;
 utils.swal = swal;
-utils.arraybufferToHex = (buffer) => {
+
+/**
+ * ArrayBuffer to hex
+ */
+utils.ab2hex = (buffer) => {
   return Array
     .from(new Uint8Array(buffer))
     .map(b => b.toString(16).padStart(2, '0'))
