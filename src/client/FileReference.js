@@ -1,7 +1,8 @@
 /* eslint-disable no-alert, no-console, no-undef, arrow-parens */
 
-import prettybytes from 'pretty-bytes';
-import { sha256, pako, ab2hex, msgpack } from './utils';
+import {
+  toSHA256Hex, pakoDeflate, msgpackEncode, fromFile, toPretty,
+} from './Uint8ArrayTools';
 
 /**
  * Cheatsheet:
@@ -10,31 +11,25 @@ import { sha256, pako, ab2hex, msgpack } from './utils';
  */
 
 class FileReference {
-
   constructor(file) {
     this.file = file;
+    this.fileName = file.name;
+    this.fileType = file.type;
   }
 
   fromFile(file) {
     const self = this;
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const { result } = e.target;
-        const uint8array = new Uint8Array(result);
-        self.sizeRaw = uint8array.byteLength;
-        self.sizeRawPretty = prettybytes(uint8array.byteLength);
-        self.hashRaw = ab2hex(sha256(uint8array));
-        const compressed = pako.deflate(uint8array, { level: 9, memLevel: 9 });
+    return fromFile(file)
+      .then((raw) => {
+        self.sizeRaw = raw.byteLength;
+        self.sizeRawPretty = toPretty(raw.byteLength);
+        self.hashRaw = toSHA256Hex(raw);
+        const compressed = pakoDeflate(raw);
         self.bufferCompressed = compressed;
         self.sizeCompressed = compressed.byteLength;
-        self.sizeCompressedPretty = prettybytes(compressed.byteLength);
-        self.hashCompressed = ab2hex(sha256(compressed));
-        resolve();
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
+        self.sizeCompressedPretty = toPretty(compressed.byteLength);
+        self.hashCompressed = toSHA256Hex(compressed);
+      });
   }
 
   /**
@@ -42,30 +37,30 @@ class FileReference {
    */
   chunk() {
     const { sizeCompressed, bufferCompressed } = this;
-
-    // lock at 16kb chunks to fit well with WebRTC frame size limit
-    const chunkSize = 16 * 1024;
-    const chunkCount = Math.ceil(sizeCompressed / chunkSize);
-    const chunkIndex = [];
-    for (let i = 0; i < chunkCount; i += 1) {
-      const begin = i * chunkSize;
-      const end = (i * chunkSize) + chunkSize;
-      const chunk = bufferCompressed.slice(begin, end);
-      chunkIndex.push({
-        begin,
-        end,
-        size: chunk.byteLength,
-        pretty: prettybytes(chunk.byteLength),
-        hash: ab2hex(sha256(chunk)),
-      });
+    if (Boolean(bufferCompressed) === true) {
+      // lock at 16kb chunks to fit well with WebRTC frame size limit
+      const chunkSize = 16 * 1024;
+      const chunkCount = Math.ceil(sizeCompressed / chunkSize);
+      const chunkIndex = [];
+      for (let i = 0; i < chunkCount; i += 1) {
+        const begin = i * chunkSize;
+        const end = (i * chunkSize) + chunkSize;
+        const chunk = bufferCompressed.slice(begin, end);
+        chunkIndex.push({
+          begin,
+          end: begin + chunk.byteLength,
+          size: chunk.byteLength,
+          pretty: toPretty(chunk.byteLength),
+          hash: toSHA256Hex(chunk),
+        });
+      }
+      const chunkIndexBufferHash = toSHA256Hex(msgpackEncode(chunkIndex));
+      this.chunkCount = chunkCount;
+      this.chunkIndex = chunkIndex;
+      this.chunkSize = chunkSize;
+      this.chunkSizePretty = toPretty(chunkSize);
+      this.chunkIndexBufferHash = chunkIndexBufferHash;
     }
-    const chunkIndexBufferHash = ab2hex(sha256(msgpack.encode(chunkIndex)));
-
-    this.chunkCount = chunkCount;
-    this.chunkIndex = chunkIndex;
-    this.chunkSize = chunkSize;
-    this.chunkSizePretty = prettybytes(chunkSize);
-    this.chunkIndexBufferHash = chunkIndexBufferHash;
   }
 }
 

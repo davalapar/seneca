@@ -29,6 +29,7 @@ const Server = {
       },
     ],
   },
+  stats: 'minimal',
 };
 
 const Client = (env, argv) => {
@@ -66,6 +67,7 @@ const Client = (env, argv) => {
         }),
       ],
     },
+    stats: 'minimal',
   };
 };
 module.exports = [Client, Server];

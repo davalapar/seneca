@@ -38,6 +38,7 @@
     "fast-sha256": "^1.1.0",
     "immutable": "^3.8.2",
     "mitt": "^1.1.3",
+    "moment": "^2.22.2",
     "msgpack5": "^4.2.0",
     "pako": "^1.0.6",
     "pretty-bytes": "^5.1.0",

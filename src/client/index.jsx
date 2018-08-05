@@ -5,10 +5,10 @@ import ReactDOM from 'react-dom';
 import Button from '@material-ui/core/Button';
 import mitt from 'mitt';
 import createStore from 'unistore';
+import swal from 'sweetalert2';
 import { Map, List } from 'immutable';
 import FileReference from './FileReference';
 
-import { swal } from './utils';
 
 const Store = createStore();
 const Events = mitt();
@@ -51,7 +51,8 @@ const App = () => (
       color="primary"
       onClick={() => {
         swal('Clicked!');
-      }}>
+      }}
+    >
       Start
     </Button>
   </div>
