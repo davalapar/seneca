@@ -29,7 +29,9 @@ export const toHex = (param) => {
 export const fromRandomBytes = nacl.randomBytes;
 
 export const toSHA256 = sha256;
+export const toSHA512 = nacl.hash;
 export const toSHA256Hex = param => toHex(toSHA256(param));
+export const toSHA512Hex = param => toHex(toSHA512(param));
 
 export const pakoDeflate = (param, opts) => pako.deflate(param, opts || { level: 9, memLevel: 9 });
 export const pakoInflate = pako.inflate;
@@ -53,3 +55,24 @@ export const fromArrayBuffer = param => param.buffer;
 export const toArrayBuffer = param => new Uint8Array(param);
 
 export const toPretty = prettybytes;
+
+export default {
+  fromUTF8,
+  toUTF8,
+  fromBase64,
+  toBase64,
+  toHex,
+  fromRandomBytes,
+  toSHA256,
+  toSHA512,
+  toSHA256Hex,
+  toSHA512Hex,
+  pakoDeflate,
+  pakoInflate,
+  msgpackEncode,
+  msgpackDecode,
+  fromFile,
+  fromArrayBuffer,
+  toArrayBuffer,
+  toPretty,
+};

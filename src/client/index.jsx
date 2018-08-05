@@ -8,7 +8,7 @@ import createStore from 'unistore';
 import swal from 'sweetalert2';
 import { Map, List } from 'immutable';
 import FileReference from './FileReference';
-
+import Uint8ArrayTools from './Uint8ArrayTools';
 
 const Store = createStore();
 const Events = mitt();
@@ -62,3 +62,4 @@ ReactDOM.render(<App />, document.querySelector('#app'));
 
 window.Store = Store;
 window.Events = Events;
+window.Uint8ArrayTools = Uint8ArrayTools;
